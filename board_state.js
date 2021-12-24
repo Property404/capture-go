@@ -2,13 +2,13 @@ const MAX_GRID_SIZE = 1023;
 const DEFAULT_GRID_SIZE = 9;
 const DIMENSIONS = 3;
 
-export const WHITE=1;
-export const BLACK=2;
+export const WHITE = 1;
+export const BLACK = 2;
 
 export function opposingColor(color) {
     if (color == WHITE) {
         return BLACK;
-    } else if(color== BLACK) {
+    } else if (color == BLACK) {
         return WHITE
     } else {
         throw new Error("Invalid color!");
@@ -21,7 +21,7 @@ export class Coordinate {
         this.y = y;
         this.z = z;
         if (typeof(x) != "number" || typeof(y) != "number" || typeof(z) != "number") {
-            throw new Error ("Not a number!");
+            throw new Error("Not a number!");
         }
     }
 
@@ -42,7 +42,7 @@ export class Coordinate {
 
     // Check if all dimensions are inbetween min and max
     inBounds(min, max) {
-        for (const d of [this.x,this.y,this.z]) {
+        for (const d of [this.x, this.y, this.z]) {
             if (d < min || d > max) {
                 return false
             }
@@ -77,7 +77,10 @@ export class BoardState {
 
     reset() {
         this._state = {}
-        this.taken = {BLACK: 0, WHITE:0}
+        this.taken = {
+            BLACK: 0,
+            WHITE: 0
+        }
     }
 
     set(coord, color) {
@@ -90,8 +93,34 @@ export class BoardState {
         return this._state[coord.getValue()];
     }
 
+    getAllCoordinates() {
+        let coords = [];
+        for (let x = this.min; x <= this.max; x++) {
+            for (let y = this.min; y <= this.max; y++) {
+                for (let z = this.min; z <= this.max; z++) {
+                    coords.push(new Coordinate(x, y, z));
+                }
+            }
+        }
+        return coords;
+    }
+
+    gameOver() {
+        const coords = this.getAllCoordinates()
+        for (const coord of coords) {
+            const color = this.get(coord);
+            if (!color) {
+                continue;
+            }
+            if (this.countLiberties(coord) == 0) {
+                return color;
+            }
+        }
+        return false;
+    }
+
     guard(coord) {
-        if (! coord.inBounds(this.min, this.max)) {
+        if (!coord.inBounds(this.min, this.max)) {
             throw new Error("Out of bounds");
         }
     }
@@ -103,7 +132,7 @@ export class BoardState {
             color = this.get(coord);
         }
 
-        if (! color) {
+        if (!color) {
             throw new Error("Cannot count non-theoretical liberties on blank coordinate");
         }
 
@@ -138,7 +167,7 @@ export class BoardState {
             }
             //console.log("Considering!")
 
-            if (! this.get(subject)) {
+            if (!this.get(subject)) {
                 liberties++;
                 //console.log(liberties);
                 continue;
@@ -146,7 +175,7 @@ export class BoardState {
                 //console.log(`(${subject.x}, ${subject.y}, ${subject.z}) has color: ${this.get(subject)}`);
             }
 
-            if(this.get(subject) == color) {
+            if (this.get(subject) == color) {
                 queue.push(...subject.getOrthogonals())
             }
         }
@@ -164,8 +193,8 @@ export class BoardState {
 
         let adjacents = coord.getOrthogonals();
         for (let adjacent of adjacents) {
-            if (this.get(coord) == opposingColor(color)
-                && countLiberties(coord, opposingColor(color)) == 1) {
+            if (this.get(coord) == opposingColor(color) &&
+                countLiberties(coord, opposingColor(color)) == 1) {
                 return true;
             }
         }
@@ -180,27 +209,9 @@ export class BoardState {
     place(coord, color) {
         this.guard(coord);
         if (!this.moveIsLegal(coord, color)) {
-            console.log("Illegal move");
             return false;
         }
         this.set(coord, color);
         return true;
     }
-}
-
-// Tests to be run in NodeJs
-if (typeof window === 'undefined') {
-    let state = new BoardState();
-
-    console.assert(state.countLiberties(new Coordinate(4,4,4), BLACK) == 3);
-
-    console.assert(state.place(new Coordinate(0,0,0), BLACK));
-    console.assert(state.countLiberties(new Coordinate(0,0,0)) == 6);
-
-    console.assert(state.place(new Coordinate(1,0,0), WHITE));
-    console.assert(state.countLiberties(new Coordinate(0,0,0)) == 5);
-    console.assert(state.countLiberties(new Coordinate(1,0,0)) == 5);
-    console.assert(state.place(new Coordinate(0,1,0), BLACK));
-    console.assert(state.countLiberties(new Coordinate(0,1,0)) == 9);
-
 }

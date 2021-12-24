@@ -1,0 +1,19 @@
+{
+  "name": "capture_go",
+  "version": "0.1.0",
+  "description": "3D version of the capture-only version of the classic board game",
+  "main": "app.js",
+  "type": "module",
+  "scripts": {
+    "test": "node test.js",
+    "format": "js-beautify --end-with-newline *.js"
+  },
+  "author": "Dagan Martinez",
+  "license": "MIT",
+  "dependencies": {
+    "lodash-es": "^4.17.21"
+  },
+  "devDependencies": {
+    "js-beautify": "^1.14.0"
+  }
+}

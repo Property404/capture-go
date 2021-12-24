@@ -3,5 +3,6 @@
 !*.md
 !*.css
 !*.js
+!*.json
 !.gitignore
 !LICENSE
