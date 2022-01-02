@@ -23,7 +23,7 @@ const CHECKER_RADIUS = CANVAS_WIDTH / 40;
 const BUFFER = CHECKER_RADIUS * 1.1;
 const BOARD_WIDTH = CANVAS_WIDTH - 2 * BUFFER;
 const BOARD_HEIGHT = CANVAS_HEIGHT - 2 * BUFFER;
-const FONT_SIZE = 30;
+const FONT_SIZE = 20;
 
 let turn = null;
 let current_plane = 0;
@@ -115,7 +115,8 @@ function redraw() {
             }
 
             context.font = `${FONT_SIZE}px Ariel`;
-            context.fillText("" + board_state.countLiberties(coord), x - FONT_SIZE / 4, y + FONT_SIZE / 4);
+            const string = "" + board_state.countLiberties(coord);
+            context.fillText(string, x - (CHECKER_RADIUS / 4) * string.length, y + CHECKER_RADIUS / 4);
 
         }
     }
