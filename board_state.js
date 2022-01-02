@@ -146,33 +146,21 @@ export class BoardState {
 
         while (queue.length) {
             const subject = queue.pop();
-            //console.log(`Searching (${subject.x}, ${subject.y}, ${subject.z})`);
 
             let already_searched = false;
             for (let elem of searched) {
                 if (subject.equals(elem)) {
                     already_searched = true;
-                } else {
-                    //console.log(`(${subject.x}, ${subject.y}, ${subject.z}) != (${elem.x}, ${elem.y}, ${elem.z})`);
                 }
             }
             searched.add(subject);
-            if (already_searched) {
-                //console.log(`(${subject.x}, ${subject.y}, ${subject.z}) already searched`);
+            if (already_searched || !subject.inBounds(this.min, this.max)) {
                 continue;
             }
-            if (!subject.inBounds(this.min, this.max)) {
-                //console.log(`(${subject.x}, ${subject.y}, ${subject.z}) out of bounds`);
-                continue;
-            }
-            //console.log("Considering!")
 
             if (!this.get(subject)) {
                 liberties++;
-                //console.log(liberties);
                 continue;
-            } else {
-                //console.log(`(${subject.x}, ${subject.y}, ${subject.z}) has color: ${this.get(subject)}`);
             }
 
             if (this.get(subject) == color) {

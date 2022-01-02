@@ -147,11 +147,8 @@ function absoluteToCanvas(canvas, absolute_x, absolute_y) {
 }
 
 function inDelta(value) {
-    let diff = Math.abs(value % 1);
-    if (diff < .3 || diff > .7) {
-        return true;
-    }
-    return false;
+    const diff = Math.abs(value % 1);
+    return diff < .3 || diff > .7;
 }
 
 function nextTurn() {
