@@ -12,6 +12,8 @@ import {
     SimplePlayer
 } from "./ai.js";
 
+import Human from "./human.js"
+
 const GRID_SIZE = 5;
 const MIN = -(GRID_SIZE - 1) / 2;
 const MAX = +(GRID_SIZE - 1) / 2;
@@ -25,12 +27,13 @@ const FONT_SIZE = 30;
 
 let turn = null;
 let current_plane = 0;
-let black_ai = null;
-let white_ai = new SimplePlayer();
 
 let canvases = [];
 let contexts = [];
 let board_state = null;
+
+let black_player = new Human(canvases);
+let white_player = new SimplePlayer();
 
 function translate(x, y) {
     x += MAX;
@@ -38,7 +41,7 @@ function translate(x, y) {
     return [x * BOARD_WIDTH / (GRID_SIZE - 1) + BUFFER, y * BOARD_HEIGHT / (GRID_SIZE - 1) + BUFFER]
 }
 
-function revTranslate(x, y) {
+export function revTranslate(x, y) {
     x -= BUFFER;
     y -= BUFFER;
     x = (x * (GRID_SIZE - 1)) / BOARD_WIDTH;
@@ -125,7 +128,6 @@ function init() {
 
         canvas.width = CANVAS_WIDTH;
         canvas.height = CANVAS_HEIGHT;
-        canvas.onclick = handleClick(i);
 
         container.appendChild(canvas);
         canvases.push(canvas);
@@ -136,19 +138,6 @@ function init() {
     }
     board_state = new BoardState(GRID_SIZE);
     nextTurn();
-}
-
-function absoluteToCanvas(canvas, absolute_x, absolute_y) {
-    const bbox = canvas.getBoundingClientRect();
-    const scaleX = canvas.width / bbox.width;
-    const scaleY = canvas.height / bbox.height;
-    let [x, y] = [(absolute_x - bbox.left) * scaleX, (absolute_y - bbox.top) * scaleY];
-    return [x, y];
-}
-
-function inDelta(value) {
-    const diff = Math.abs(value % 1);
-    return diff < .3 || diff > .7;
 }
 
 function nextTurn() {
@@ -164,54 +153,18 @@ function nextTurn() {
         turn = BLACK;
     }
 
-    function setCanvasesClickable(yes) {
-        for (let i = 0; i < GRID_SIZE; i++) {
-            if (yes) {
-                canvases[i].onclick = handleClick(i);
-            } else {
-                canvases[i].onclick = null;
-            }
-        }
-    }
 
-    const ai = {
-        [BLACK]: black_ai,
-        [WHITE]: white_ai,
+    const player = {
+        [BLACK]: black_player,
+        [WHITE]: white_player,
     } [turn];
-    if (ai) {
-        setCanvasesClickable(false);
-        ai.nextMove(board_state, turn, (value) => {
+    if (player) {
+        player.nextMove(board_state, turn, (value) => {
             board_state.place(value, turn);
             nextTurn();
         })
     } else {
-        setCanvasesClickable(true);
-    }
-}
-
-function handleClick(num) {
-    return function(e) {
-        let [_x, _y] = absoluteToCanvas(e.target, e.clientX, e.clientY)
-        let [x, y] = revTranslate(_x, _y)
-
-        if (inDelta(x) && inDelta(y)) {
-            x = Math.round(x);
-            y = Math.round(y);
-
-            // Rotate for portrait
-            if (window.innerHeight > window.innerWidth) {
-                let t = x;
-                x = y
-                y = -t;
-            }
-
-            if (!board_state.place(new Coordinate(x, y, num - MAX), turn)) {
-                console.log("Can't move here!");
-                return;
-            }
-
-            nextTurn();
-        }
+        throw new Error("No player on team");
     }
 }
 

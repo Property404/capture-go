@@ -11,7 +11,6 @@ class Ai {
     nextMove(state, color, callback) {
         callback(this.getNextMove(state, color));
     }
-
 }
 
 function randomLegalCoordinate(state, color) {
