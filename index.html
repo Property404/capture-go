@@ -10,7 +10,41 @@
 	<script src="app.js" type="module"></script>
 </head>
 <body>
-	<div id="main-container">
+    <form id="main-menu">
+        <div class="main-menu-item ">
+            <label for="config-grid-size">Grid size:</label>
+            <div class="number-input-container">
+                <input id="config-grid-size" type="number" value="5" step="2" min="3" max="19">
+                <div class="number-input-arrowbox">
+                    <button type="button" class="number-input-up">^</button>
+                    <button type="button" class="number-input-down">v</button>
+                </div>
+            </div>
+        </div>
+        <div class="main-menu-item">
+            <label for="config-mode">Game Mode:</label>
+            <select id="config-mode">
+                <option value="2D">2D</option>
+                <option value="3D">3D</option>
+            </select>
+        </div>
+        <div class="main-menu-item">
+            <label for="config-player-1">Black Player:</label>
+            <select id="config-player-1">
+                <option value="human">Human</option>
+                <option value="ai">AI</option>
+            </select>
+        </div>
+        <div class="main-menu-item">
+            <label for="config-player-2">White Player:</label>
+            <select id="config-player-2" value="ai">
+                <option value="human">Human</option>
+                <option selected value="ai">AI</option>
+            </select>
+        </div>
+        <button type="button" id="play-button">Play</button>
+    </form>
+	<div id="boards" style="display:none">
 	</div>
 </body>
 </html>

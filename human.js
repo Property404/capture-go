@@ -1,5 +1,5 @@
 import {
-    Coordinate
+    Point
 } from "./board_state.js";
 import {
     CANVAS_WIDTH,
@@ -9,7 +9,7 @@ import {
     BOARD_WIDTH,
     BOARD_HEIGHT,
 } from "./constants.js";
-// Translate canvas coordinates to grid coordinates
+// Translate canvas points to grid points
 
 function inDelta(value) {
     const diff = Math.abs(value % 1);
@@ -29,6 +29,10 @@ export default class Human {
         this.game = game;
     }
 
+    useTimer() {
+        return false;
+    }
+
     revTranslate(x, y) {
         x -= BUFFER;
         y -= BUFFER;
@@ -41,7 +45,7 @@ export default class Human {
 
     setCanvasesClickable(yes, state, color, callback) {
         const canvases = this.game.canvases;
-        for (let i = 0; i < state.grid_size; i++) {
+        for (let i = 0; i < this.game.num_planes; i++) {
             if (yes) {
                 canvases[i].onclick = (e) => {
                     const [_x, _y] = absoluteToCanvas(e.target, e.clientX, e.clientY)
@@ -57,11 +61,11 @@ export default class Human {
                             x = y
                             y = -t;
                         }
-                        const offset = (state.grid_size - 1) / 2
-                        const coord = new Coordinate(x, y, i - offset);
+                        const offset = (this.game.num_planes - 1) / 2
+                        const point = new Point(x, y, i - offset);
 
-                        if (state.moveIsLegal(coord, color)) {
-                            callback(coord);
+                        if (state.moveIsLegal(point, color)) {
+                            callback(point);
                         }
                     }
                 }

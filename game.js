@@ -3,7 +3,7 @@ import {
     BoardState,
     WHITE,
     BLACK,
-    Coordinate,
+    Point,
     opposingColor
 } from "./board_state.js";
 
@@ -19,6 +19,8 @@ import {
     FONT_SIZE
 } from "./constants.js";
 
+const AI_SLEEP_TIME = 150;
+
 function clear(context) {
     context.clearRect(0, 0, CANVAS_HEIGHT, CANVAS_WIDTH);
     context.rect(0, 0, CANVAS_HEIGHT, CANVAS_WIDTH);
@@ -27,7 +29,7 @@ function clear(context) {
 }
 
 export default class Game {
-    constructor(black_player, white_player, grid_size = 5) {
+    constructor(black_player, white_player, grid_size = 5, mode_3d = true) {
         if (!(grid_size % 2)) {
             new Error("Grid size must be odd!!");
         }
@@ -40,6 +42,12 @@ export default class Game {
         this.grid_size = grid_size;
         this.black_player = black_player || new Human(this);
         this.white_player = white_player || new Human(this);
+        this.mode_3d = mode_3d;
+        if (mode_3d) {
+            this.num_planes = this.grid_size;
+        } else {
+            this.num_planes = 1
+        }
 
         this.init();
     }
@@ -48,14 +56,14 @@ export default class Game {
         this.turn = null;
         this.canvases = [];
         this.contexts = [];
-        this.state = new BoardState(this.grid_size);
+        this.state = new BoardState(this.grid_size, this.mode_3d);
 
         // This will actually be the middle plane
-        this.current_plane = this.highest_index;
+        this.current_plane = (this.num_planes - 1) / 2;
 
-        const container = document.querySelector("#main-container");
+        const container = document.querySelector("#boards");
         container.innerHTML = "";
-        for (let i = 0; i < this.grid_size; i++) {
+        for (let i = 0; i < this.num_planes; i++) {
             let canvas = document.createElement("canvas");
 
             canvas.width = CANVAS_WIDTH;
@@ -70,26 +78,29 @@ export default class Game {
         }
 
         this.scrollToCurrent();
+        this.drawBoard();
         this.nextTurn();
 
         const game = this;
-        document.onkeydown = function(e) {
-            if (e.keyCode == 37) {
-                if (game.current_plane > 0) {
-                    game.current_plane -= 1;
+        if (this.num_planes > 1) {
+            document.onkeydown = function(e) {
+                if (e.keyCode == 37) {
+                    if (game.current_plane > 0) {
+                        game.current_plane -= 1;
+                    }
+                    game.scrollToCurrent();
                 }
-                game.scrollToCurrent();
-            }
-            if (e.keyCode == 39) {
-                if (game.current_plane < game.grid_size - 1) {
-                    game.current_plane += 1;
+                if (e.keyCode == 39) {
+                    if (game.current_plane < game.grid_size - 1) {
+                        game.current_plane += 1;
+                    }
+                    game.scrollToCurrent();
                 }
-                game.scrollToCurrent();
             }
         }
     }
 
-    // Translate grid coordinates to canvas coordinates
+    // Translate grid points to canvas points
     translate(x, y) {
         x += this.highest_index;
         y += this.highest_index;
@@ -97,8 +108,8 @@ export default class Game {
     }
 
 
-    redraw() {
-        for (let i = 0; i < this.grid_size; i++) {
+    drawBoard() {
+        for (let i = 0; i < this.num_planes; i++) {
             let context = this.contexts[i]
             clear(context);
             context.lineWidth = 5;
@@ -121,15 +132,20 @@ export default class Game {
                 context.closePath();
                 context.stroke();
             }
+        }
+    }
 
+    drawStones() {
+        for (let i = 0; i < this.num_planes; i++) {
+            let context = this.contexts[i]
             context.strokeStyle = "black";
             context.lineWidth = 2;
-            for (let coord of this.state.getAllCoordinates()) {
-                if (coord.z != i - this.highest_index) {
+            for (let point of this.state.getAllPoints()) {
+                if (this.mode_3d && point.z() != i - this.highest_index) {
                     continue;
                 }
 
-                let color = this.state.get(coord);
+                let color = this.state.get(point);
                 if (!color) {
                     continue;
                 } else if (color == WHITE) {
@@ -140,7 +156,7 @@ export default class Game {
                     throw new Error("Impossible color")
                 }
 
-                const [x, y] = this.translate(coord.x, coord.y);
+                const [x, y] = this.translate(point.x(), point.y());
 
                 context.beginPath();
                 context.ellipse(x, y, CHECKER_RADIUS, CHECKER_RADIUS, 0, 0, Math.PI * 2);
@@ -154,7 +170,7 @@ export default class Game {
                 }
 
                 context.font = `${FONT_SIZE}px Ariel`;
-                const string = "" + this.state.countLiberties(coord);
+                const string = "" + this.state.countLiberties(point);
                 context.fillText(string, x - (CHECKER_RADIUS / 4) * string.length, y + CHECKER_RADIUS / 4);
 
             }
@@ -162,7 +178,7 @@ export default class Game {
     }
 
     nextTurn() {
-        this.redraw();
+        this.drawStones();
         if (this.state.gameOver()) {
             alert("Game over!");
             return;
@@ -181,8 +197,10 @@ export default class Game {
         } [this.turn];
         if (player) {
             player.nextMove(this.state, this.turn, (value) => {
-                this.state.place(value, this.turn);
-                this.nextTurn();
+                setTimeout(() => {
+                    this.state.place(value, this.turn);
+                    this.nextTurn();
+                }, AI_SLEEP_TIME * player.useTimer());
             })
         } else {
             throw new Error("No player on team");

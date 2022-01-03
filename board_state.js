@@ -15,59 +15,96 @@ export function opposingColor(color) {
     }
 }
 
-export class Coordinate {
-    constructor(x, y, z) {
-        this.x = x;
-        this.y = y;
-        this.z = z;
-        if (typeof(x) != "number" || typeof(y) != "number" || typeof(z) != "number") {
-            throw new Error("Not a number!");
+export class Point {
+    constructor(...coordinates) {
+        if (coordinates.length < 2) {
+            throw new Error("Coordinates not given for Point constructor");
         }
+
+        for (let coord of coordinates) {
+            if (typeof(coord) != "number") {
+                throw new Error("Coordinate not a number!");
+            }
+        }
+
+        this.coordinates = coordinates;
     }
 
-    // Return all orthogonally adjacent coordinates 
-    getOrthogonals() {
-        const x = this.x;
-        const y = this.y;
-        const z = this.z;
-        return [
-            new Coordinate(x - 1, y, z),
-            new Coordinate(x, y - 1, z),
-            new Coordinate(x, y, z - 1),
-            new Coordinate(x + 1, y, z),
-            new Coordinate(x, y + 1, z),
-            new Coordinate(x, y, z + 1),
-        ]
+    x() {
+        return this.coordinates[0] || 0;
     }
 
-    // Check if all dimensions are inbetween min and max
+    y() {
+        return this.coordinates[1] || 0;
+    }
+
+    z() {
+        return this.coordinates[2] || 0;
+    }
+
+    // Return all orthogonally adjacent points 
+    getOrthogonalsByDimension(dimension) {
+        let orthogonals = [];
+        let coordinates = []
+        for (let i = 0; i < dimension; i++) {
+            coordinates[i] = this.coordinates[i] || 0;
+        }
+        for (let i = 0; i < dimension; i++) {
+            coordinates[i] += 1;
+            orthogonals.push(new Point(...coordinates));
+            coordinates[i] -= 2;
+            orthogonals.push(new Point(...coordinates));
+            coordinates[i] += 1;
+        }
+        if (orthogonals.length != dimension * 2) {
+            throw new Error("Something's wrong!");
+        }
+        return orthogonals;
+    }
+
+    get3dOrthogonals() {
+        return this.getOrthogonalsByDimension(3);
+    }
+
+    get2dOrthogonals() {
+        return this.getOrthogonalsByDimension(2);
+    }
+
+    // Check if all coordinates are inbetween min and max
     inBounds(min, max) {
-        for (const d of [this.x, this.y, this.z]) {
-            if (d < min || d > max) {
+        for (const c of this.coordinates) {
+            if (c < min || c > max) {
                 return false
             }
         }
         return true;
     }
 
-    equals(coord) {
-        return this.x == coord.x &&
-            this.y == coord.y &&
-            this.z == coord.z
+    // Compare two points
+    equals(point) {
+        for (let i in point.coordinates) {
+            if ((this.coordinates[i] || 0) != point.coordinates[i]) {
+                return false;
+            }
+        }
+        return true;
     }
 
+    // Hash coordinates to number
     getValue() {
-        const x = this.x;
-        const y = this.y;
-        const z = this.z;
         const exp = MAX_GRID_SIZE + 1;
-        return x + y * exp + z * exp * exp;
+        let val = 0;
+        for (let i in this.coordinates) {
+            val += this.coordinates[i] * Math.pow(exp, i);
+        }
+        return val;
     }
 }
 
 
 export class BoardState {
-    constructor(grid_size = DEFAULT_GRID_SIZE) {
+    constructor(grid_size = DEFAULT_GRID_SIZE, mode_3d = false) {
+        this.mode_3d = mode_3d;
         this.grid_size = grid_size;
         this.max = (grid_size - 1) / 2;
         this.min = -this.max
@@ -76,71 +113,101 @@ export class BoardState {
     }
 
     reset() {
-        this._state = {}
-        this.taken = {
-            BLACK: 0,
-            WHITE: 0
+        this._state = {};
+        this.resetLibertyCache();
+    }
+
+    resetLibertyCache() {
+        this.libcache = {
+            [BLACK]: {},
+            [WHITE]: {}
+        };
+    }
+
+    set(point, color) {
+        this.guard(point);
+        this._state[point.getValue()] = color;
+        this.resetLibertyCache();
+    }
+
+    remove(point) {
+        this.set(point, null);
+    }
+
+    get(point) {
+        this.guard(point);
+        return this._state[point.getValue()];
+    }
+
+    getAllPoints() {
+        if (this._all_points) {
+            return this._all_points;
         }
-    }
 
-    set(coord, color) {
-        this.guard(coord);
-        this._state[coord.getValue()] = color;
-    }
-
-    get(coord) {
-        this.guard(coord);
-        return this._state[coord.getValue()];
-    }
-
-    getAllCoordinates() {
-        let coords = [];
+        let points = [];
         for (let x = this.min; x <= this.max; x++) {
             for (let y = this.min; y <= this.max; y++) {
-                for (let z = this.min; z <= this.max; z++) {
-                    coords.push(new Coordinate(x, y, z));
+                if (this.mode_3d) {
+                    for (let z = this.min; z <= this.max; z++) {
+                        points.push(new Point(x, y, z));
+                    }
+                } else {
+                    points.push(new Point(x, y));
                 }
             }
         }
-        return coords;
+        this._all_points = points;
+        return points;
     }
 
     gameOver() {
-        const coords = this.getAllCoordinates()
-        for (const coord of coords) {
-            const color = this.get(coord);
+        const points = this.getAllPoints()
+        for (const point of points) {
+            const color = this.get(point);
             if (!color) {
                 continue;
             }
-            if (this.countLiberties(coord) == 0) {
+            if (this.countLiberties(point) == 0) {
                 return color;
             }
         }
         return false;
     }
 
-    guard(coord) {
-        if (!coord.inBounds(this.min, this.max)) {
+    guard(point) {
+        if (!point.inBounds(this.min, this.max)) {
             throw new Error("Out of bounds");
         }
     }
 
-    countLiberties(coord, color = null) {
-        this.guard(coord);
+    getOrthogonals(point) {
+        if (this.mode_3d) {
+            return point.get3dOrthogonals();
+        } else {
+            return point.get2dOrthogonals();
+        }
+    }
+
+    countLiberties(point, color = null) {
+        this.guard(point);
 
         if (color == null) {
-            color = this.get(coord);
+            color = this.get(point);
         }
 
         if (!color) {
-            throw new Error("Cannot count non-theoretical liberties on blank coordinate");
+            throw new Error("Cannot count non-theoretical liberties on blank pointinate");
+        }
+
+        if (this.libcache[color][point.getValue()] != null) {
+            return this.libcache[color][point.getValue()];
         }
 
         let searched = new Set();
-        searched.add(coord);
+        searched.add(point);
 
         let queue = []
-        queue.push(...coord.getOrthogonals());
+        queue.push(...this.getOrthogonals(point));
 
         let liberties = 0;
 
@@ -151,6 +218,7 @@ export class BoardState {
             for (let elem of searched) {
                 if (subject.equals(elem)) {
                     already_searched = true;
+                    break;
                 }
             }
             searched.add(subject);
@@ -164,42 +232,47 @@ export class BoardState {
             }
 
             if (this.get(subject) == color) {
-                queue.push(...subject.getOrthogonals())
+                if (this.libcache[color][subject.getValue()] != null) {
+                    liberties = this.libcache[color][subject.getValue()];
+                    break;
+                }
+                queue.push(...this.getOrthogonals(subject))
             }
         }
 
+        this.libcache[color][point.getValue()] = liberties;
         return liberties;
 
     }
 
-    moveIsLegal(coord, color) {
-        this.guard(coord);
+    moveIsLegal(point, color) {
+        this.guard(point);
 
-        if (this.get(coord)) {
+        if (this.get(point)) {
             return false;
         }
 
-        let adjacents = coord.getOrthogonals();
+        let adjacents = this.getOrthogonals(point);
         for (let adjacent of adjacents) {
-            if (this.get(coord) == opposingColor(color) &&
-                countLiberties(coord, opposingColor(color)) == 1) {
+            if (this.get(point) == opposingColor(color) &&
+                countLiberties(point, opposingColor(color)) == 1) {
                 return true;
             }
         }
 
-        if (this.countLiberties(coord, color) == 0) {
+        if (this.countLiberties(point, color) == 0) {
             return false;
         }
 
         return true;
     }
 
-    place(coord, color) {
-        this.guard(coord);
-        if (!this.moveIsLegal(coord, color)) {
+    place(point, color) {
+        this.guard(point);
+        if (!this.moveIsLegal(point, color)) {
             return false;
         }
-        this.set(coord, color);
+        this.set(point, color);
         return true;
     }
 }

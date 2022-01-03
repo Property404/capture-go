@@ -1,3 +1,6 @@
+:root {
+    --background: #444;
+}
 * {
     box-sizing:border-box;
 }
@@ -11,14 +14,87 @@ body{
     padding:0;
 	color:white;
 	font-family:sans-serif;
-	background-color:#444;
+	background-color:var(--background);
 	display:flex;
 	flex-direction:row;
 	justify-content:center;
+	align-items:center;
 	height:100%;
     flex-wrap:nowrap;
 }
-#main-container{
+
+#main-menu {
+    margin:0;
+    padding:0;
+    display: flex;
+    flex-direction: column;
+	justify-content:center;
+    align-items:left;
+    font-size: 4rem;
+    gap:1rem;
+    max-width: 80%;
+}
+.main-menu-item{
+    display: flex;
+    gap:.2rem;
+    padding:0;
+    margin:0;
+    justify-content:space-between;
+}
+
+select,input,button {
+    display: inline-block;
+    background-color:transparent;
+    color:white;
+    border: .2rem solid;
+    border-color: white;
+    font-size:inherit;
+    padding: 1rem;
+}
+select:hover {
+    cursor:pointer;
+}
+button:hover {
+    cursor:pointer;
+    color:var(--background);
+    background-color:white;
+}
+button:active {
+    border-color: transparent;
+    padding:1.2rem;
+}
+input[type="number"] {
+    display:
+    -webkit-appearance: none;
+    -moz-appearance: textfield;
+    max-width: 8rem;
+}
+
+.number-input-container{
+    display: flex;
+}
+
+.number-input-arrowbox{
+    display: inline-flex;
+    margin:0;
+    padding:0;
+    margin-right:.2rem;;
+    margin-left:.2rem;;
+    flex-direction:column;
+    border:none;
+    font-size: 50%;
+    align-items:center;
+    justify-content:center;
+}
+
+.number-input-arrowbox button{
+    margin:0;
+    padding:0;
+    font-size:inherit;
+    width:100%;
+}
+
+#boards{
     display: flex;
     align-items:space-evenly;
 	margin:0;
