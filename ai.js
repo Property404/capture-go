@@ -67,17 +67,19 @@ export class NaivePlayer extends Ai {
 
 export class SimplePlayer extends Ai {
     getNextMove(state, color, callback) {
-        let best_move = null;
+        const points = state.getAllPoints();
+        const current_score = getScore(state, color);
+        let best_moves = [];
         let best_score = -Infinity;
-        let points = state.getAllPoints();
-        let current_score = getScore(state, color);
         for (let point of points) {
             if (state.place(point, color)) {
                 let score = getScore(state, color);
                 state.remove(point);
-                if (score > best_score || (score == best_score && Math.random() > .1)) {
+                if (score > best_score) {
                     best_score = score;
-                    best_move = point;
+                    best_moves = [point];
+                } else if (score === best_score) {
+                    best_moves.push(point);
                 }
 
                 // Quit early for larger grids
@@ -93,9 +95,9 @@ export class SimplePlayer extends Ai {
             }
         }
 
-        if (best_move == null) {
+        if (best_moves.length === 0) {
             console.log("Passing");
         }
-        return best_move;
+        return best_moves[Math.floor(Math.random() * best_moves.length)];
     }
 }
