@@ -1,6 +1,6 @@
 import {
     NaivePlayer,
-    SimplePlayer
+    GreedyPlayer
 } from "./ai.js";
 
 import Game from './game.js'
@@ -26,7 +26,7 @@ function initialize_menu() {
             if (player == "human") {
                 return null;
             } else if (player == "ai") {
-                return new SimplePlayer();
+                return new GreedyPlayer();
             }
             throw new Error("Invalid option");
         }

@@ -65,7 +65,7 @@ export class NaivePlayer extends Ai {
     }
 }
 
-export class SimplePlayer extends Ai {
+export class GreedyPlayer extends Ai {
     getNextMove(state, color, callback) {
         const points = state.getAllPoints();
         const current_score = getScore(state, color);
