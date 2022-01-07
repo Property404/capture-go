@@ -6,9 +6,9 @@ export const WHITE = 1;
 export const BLACK = 2;
 
 export function opposingColor(color) {
-    if (color == WHITE) {
+    if (color === WHITE) {
         return BLACK;
-    } else if (color == BLACK) {
+    } else if (color === BLACK) {
         return WHITE
     } else {
         throw new Error("Invalid color!");
@@ -22,7 +22,7 @@ export class Point {
         }
 
         for (let coord of coordinates) {
-            if (typeof(coord) != "number") {
+            if (typeof(coord) !== "number") {
                 throw new Error("Coordinate not a number!");
             }
         }
@@ -44,8 +44,8 @@ export class Point {
 
     // Return all orthogonally adjacent points 
     getOrthogonalsByDimension(dimension) {
-        let orthogonals = [];
-        let coordinates = []
+        const orthogonals = [];
+        const coordinates = [];
         for (let i = 0; i < dimension; i++) {
             coordinates[i] = this.coordinates[i] || 0;
         }
@@ -55,9 +55,6 @@ export class Point {
             coordinates[i] -= 2;
             orthogonals.push(new Point(...coordinates));
             coordinates[i] += 1;
-        }
-        if (orthogonals.length != dimension * 2) {
-            throw new Error("Something's wrong!");
         }
         return orthogonals;
     }
@@ -75,16 +72,6 @@ export class Point {
         for (const c of this.coordinates) {
             if (c < min || c > max) {
                 return false
-            }
-        }
-        return true;
-    }
-
-    // Compare two points
-    equals(point) {
-        for (let i in point.coordinates) {
-            if ((this.coordinates[i] || 0) != point.coordinates[i]) {
-                return false;
             }
         }
         return true;
@@ -118,16 +105,24 @@ export class BoardState {
     }
 
     resetLibertyCache() {
-        this.libcache = {
-            [BLACK]: {},
-            [WHITE]: {}
-        };
+        this.next_group_id = 1;
+        this.group_liberty_map = {};
+        this.point_group_map = {};
+
+        this.countGroups();
     }
 
     set(point, color) {
         this.guard(point);
         this._state[point.getValue()] = color;
-        this.resetLibertyCache();
+
+        for (let adjacent of this.getOrthogonals(point)) {
+            if (this.get(adjacent)) {
+                this.resetLibertyCache();
+                return;
+            }
+        }
+        this.countGroups();
     }
 
     remove(point) {
@@ -139,12 +134,16 @@ export class BoardState {
         return this._state[point.getValue()];
     }
 
+    getGroupLiberties() {
+        return this.group_liberty_map;
+    }
+
     getAllPoints() {
         if (this._all_points) {
             return this._all_points;
         }
 
-        let points = [];
+        const points = [];
         for (let x = this.min; x <= this.max; x++) {
             for (let y = this.min; y <= this.max; y++) {
                 if (this.mode_3d) {
@@ -167,7 +166,7 @@ export class BoardState {
             if (!color) {
                 continue;
             }
-            if (this.countLiberties(point) == 0) {
+            if (this.countLiberties(point) === 0) {
                 return color;
             }
         }
@@ -181,68 +180,72 @@ export class BoardState {
     }
 
     getOrthogonals(point) {
+        let orthogonals;
         if (this.mode_3d) {
-            return point.get3dOrthogonals();
+            orthogonals = point.get3dOrthogonals();
         } else {
-            return point.get2dOrthogonals();
+            orthogonals = point.get2dOrthogonals();
+        }
+        return orthogonals.filter((x) => x.inBounds(this.min, this.max))
+    }
+
+    countGroups() {
+        for (let point of this.getAllPoints()) {
+            const point_value = point.getValue();
+            if (!this._state[point_value] || this.point_group_map[point_value]) {
+                continue;
+            }
+
+            const group_id = this.next_group_id++;
+            this.countLibertiesForGroup(point, group_id);
+
         }
     }
 
-    countLiberties(point, color = null) {
-        this.guard(point);
-
-        if (color == null) {
-            color = this.get(point);
-        }
-
-        if (!color) {
-            throw new Error("Cannot count non-theoretical liberties on blank pointinate");
-        }
-
-        if (this.libcache[color][point.getValue()] != null) {
-            return this.libcache[color][point.getValue()];
-        }
-
-        let searched = new Set();
-        searched.add(point);
-
-        let queue = []
-        queue.push(...this.getOrthogonals(point));
-
+    countLibertiesForGroup(point, group_id) {
+        const color = this.get(point);
+        const searched = new Set();
+        const queue = [point]
         let liberties = 0;
 
         while (queue.length) {
             const subject = queue.pop();
+            const subject_value = subject.getValue();
+            const subject_color = this._state[subject_value];
 
-            let already_searched = false;
-            for (let elem of searched) {
-                if (subject.equals(elem)) {
-                    already_searched = true;
-                    break;
-                }
-            }
-            searched.add(subject);
-            if (already_searched || !subject.inBounds(this.min, this.max)) {
+            if (searched.has(subject_value)) {
                 continue;
             }
+            searched.add(subject_value);
 
-            if (!this.get(subject)) {
+            if (!subject_color) {
                 liberties++;
                 continue;
             }
 
-            if (this.get(subject) == color) {
-                if (this.libcache[color][subject.getValue()] != null) {
-                    liberties = this.libcache[color][subject.getValue()];
-                    break;
-                }
+            if (subject_color === color) {
+                this.point_group_map[subject_value] = group_id;
                 queue.push(...this.getOrthogonals(subject))
             }
         }
 
-        this.libcache[color][point.getValue()] = liberties;
+        this.group_liberty_map[group_id] = {
+            liberties,
+            color
+        };
+
         return liberties;
 
+    }
+
+    countLiberties(point) {
+        const point_value = point.getValue();
+        const group_id = this.point_group_map[point_value];
+        const liberties = this.group_liberty_map[group_id].liberties;
+        if (group_id == null || liberties == null) {
+            throw new Error("Cannot count liberties at this point: ", point);
+        }
+        return liberties;
     }
 
     moveIsLegal(point, color) {
@@ -252,19 +255,25 @@ export class BoardState {
             return false;
         }
 
-        let adjacents = this.getOrthogonals(point);
+        const adjacents = this.getOrthogonals(point);
         for (let adjacent of adjacents) {
-            if (this.get(point) == opposingColor(color) &&
-                countLiberties(point, opposingColor(color)) == 1) {
+            const adjacent_color = this.get(adjacent);
+            // To be legal, there needs to be at least one free adjacent,
+            // or one adjacent group with more than one liberty (because we're removing a liberty)
+            if (!adjacent_color) {
+                return true;
+            }
+            if (adjacent_color === color && this.countLiberties(adjacent) > 1) {
+                return true;
+            }
+
+            // Allow capture-in-atari
+            if (adjacent_color === opposingColor(color) && this.countLiberties(adjacent) === 1) {
                 return true;
             }
         }
 
-        if (this.countLiberties(point, color) == 0) {
-            return false;
-        }
-
-        return true;
+        return false;
     }
 
     place(point, color) {

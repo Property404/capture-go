@@ -19,7 +19,7 @@ import {
     FONT_SIZE
 } from "./constants.js";
 
-const AI_SLEEP_TIME = 150;
+const AI_SLEEP_TIME = 0;
 
 function clear(context) {
     context.clearRect(0, 0, CANVAS_HEIGHT, CANVAS_WIDTH);
