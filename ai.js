@@ -34,7 +34,7 @@ function randomLegalPoint(state, color) {
 }
 
 function getScore(state, color) {
-    let points = state.getAllPoints();
+    const points = state.getAllPoints();
     let score = 0;
 
     function scoreAtPoint(point) {
@@ -51,7 +51,13 @@ function getScore(state, color) {
 
     for (let point of points) {
         if (state.get(point) == opposingColor(color)) {
-            score -= scoreAtPoint(point);
+            // Always take the opportunity to capture an opponent.
+            const diff = scoreAtPoint(point);
+            if (diff == -Infinity) {
+                return Infinity;
+            }
+
+            score -= diff;
         } else if (state.get(point) == color) {
             score += scoreAtPoint(point);
         }
