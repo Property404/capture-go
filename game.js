@@ -82,20 +82,20 @@ export default class Game {
         this.nextTurn();
 
         const game = this;
-        if (this.num_planes > 1) {
-            document.onkeydown = function(e) {
-                if (e.keyCode == 37) {
-                    if (game.current_plane > 0) {
-                        game.current_plane -= 1;
-                    }
-                    game.scrollToCurrent();
+        document.onkeydown = function(e) {
+            if (e.keyCode == 37) {
+                e.preventDefault();
+                if (game.current_plane > 0) {
+                    game.current_plane -= 1;
                 }
-                if (e.keyCode == 39) {
-                    if (game.current_plane < game.grid_size - 1) {
-                        game.current_plane += 1;
-                    }
-                    game.scrollToCurrent();
+                game.scrollToCurrent();
+            }
+            if (e.keyCode == 39) {
+                e.preventDefault();
+                if (game.current_plane < game.num_planes - 1) {
+                    game.current_plane += 1;
                 }
+                game.scrollToCurrent();
             }
         }
     }
@@ -208,7 +208,7 @@ export default class Game {
     }
 
     scrollToCurrent() {
-        let scroll_options = {
+        const scroll_options = {
             behavior: "smooth",
             block: "center",
             inline: "center"
