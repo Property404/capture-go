@@ -51,6 +51,17 @@ select,input,button {
     font-size:inherit;
     padding: 1rem;
 }
+select {
+    /* Bit of a hack to get Chrome and Firefox to display normally,
+     * and for Webkit to have a slightly less shit styling
+     *
+     * Tested with Gnome Web  41.3
+     *
+     * TODO: remove this when webkit isn't shit
+     */
+    -webkit-appearance: none;
+    appearance: auto !important;
+}
 select:hover {
     cursor:pointer;
 }
@@ -63,10 +74,11 @@ button:active {
     border-color: transparent;
     padding:1.2rem;
 }
+input[type=number]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+}
 input[type="number"] {
-    display:
-    -webkit-appearance: none;
-    -moz-appearance: textfield;
+    appearance: textfield;
     max-width: 8rem;
 }
 
@@ -94,6 +106,10 @@ input[type="number"] {
     width:100%;
 }
 
+#boards::-webkit-scrollbar {
+    display: none;
+}
+
 #boards{
     display: flex;
     align-items:space-evenly;
@@ -106,6 +122,7 @@ input[type="number"] {
     scrollbar-width:none;
     scroll-behavior: smooth;
 }
+
 canvas{
 	margin:auto;
 	margin-left:50%;
