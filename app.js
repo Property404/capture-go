@@ -5,7 +5,26 @@ import {
 
 import Game from './game.js'
 
+function restoreValuesFromLocalStorage(ids) {
+    for (const id of ids) {
+        const value = localStorage[`.capture-go.save-element-id.${id}`];
+        if (value) {
+            document.getElementById(id).value = value;
+        }
+    }
+}
+
+function saveValuesFromLocalStorage(ids) {
+    for (const id of ids) {
+        localStorage[`.capture-go.save-element-id.${id}`] = document.getElementById(id).value;
+    }
+}
+
 function initialize_menu() {
+    const all_config_ids = ["config-mode", "config-grid-size", "config-player-1", "config-player-2"];
+
+    // Restore previous selections
+    restoreValuesFromLocalStorage(all_config_ids);
 
     // Initialize all number input buttons
     for (const arrowbox of document.querySelectorAll(".number-input-arrowbox")) {
@@ -17,6 +36,7 @@ function initialize_menu() {
             input.stepDown();
         }
     }
+
 
     const menu = document.querySelector("#main-menu");
     menu.querySelector("#play-button").onclick = (e) => {
@@ -37,6 +57,10 @@ function initialize_menu() {
 
         document.querySelector("#boards").style = "";
         document.querySelector("#main-menu").style = "display:none;";
+
+        // Save current selections
+        saveValuesFromLocalStorage(all_config_ids);
+
         const game = new Game(black_player, white_player, grid_size, mode_3d);
     }
 }
