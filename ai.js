@@ -26,7 +26,7 @@ function randomLegalPoint(state, color) {
         return new Point(random(), random(), random());
     }
     while (true) {
-        let point = randomPoint(state)
+        const point = randomPoint(state)
         if (state.moveIsLegal(point, color)) {
             return point;
         }
@@ -34,32 +34,39 @@ function randomLegalPoint(state, color) {
 }
 
 function getScore(state, color) {
+    const MEDIUM_PRIORITY_PENALTY = 100;
+    const HIGH_PRIORITY_PENALTY = 1000;
+    const CRITICAL_PRIORITY_PENALTY = 1000000000000;
+
     const points = state.getAllPoints();
     let score = 0;
 
-    function scoreAtPoint(point) {
-        let score = state.countLiberties(point);
-        if (score == 2) {
-            score = -100;
-        } else if (score == 1) {
-            score = -1000;
-        } else if (score == 0) {
-            score = -Infinity;
-        }
-        return score;
-    }
-
     for (let point of points) {
         if (state.get(point) == opposingColor(color)) {
-            // Always take the opportunity to capture an opponent.
-            const diff = scoreAtPoint(point);
-            if (diff == -Infinity) {
-                return Infinity;
-            }
+            const libs = state.countLiberties(point);
 
-            score -= diff;
+            // Always take the opportunity to capture an opponent.
+            if (libs == 0) {
+                return Infinity;
+            } else if (libs == 1) {
+                score += HIGH_PRIORITY_PENALTY;
+            } else if (libs == 2) {
+                score += MEDIUM_PRIORITY_PENALTY;
+            } else {
+                score -= libs;
+            }
         } else if (state.get(point) == color) {
-            score += scoreAtPoint(point);
+            const libs = state.countLiberties(point);
+
+            // Having one or less liberties at end of turn is a guaranteed loss
+            // against a sane player.
+            if (libs <= 1) {
+                score -= CRITICAL_PRIORITY_PENALTY;
+            } else if (libs == 2) {
+                score -= MEDIUM_PRIORITY_PENALTY;
+            } else {
+                score += libs;
+            }
         }
     }
     return score;
