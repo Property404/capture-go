@@ -44,7 +44,7 @@ body{
 
 select,input,button {
     display: inline-block;
-    background-color:transparent;
+    background-color:var(--background);
     color:white;
     border: .2rem solid;
     border-color: white;
