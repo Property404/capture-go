@@ -77,9 +77,9 @@ export default class Game {
             this.contexts.push(context);
         }
 
-        this.scrollToCurrent();
-        this.drawBoard();
-        this.nextTurn();
+        this.#scrollToCurrent();
+        this.#drawBoard();
+        this.#nextTurn();
 
         const game = this;
         document.onkeydown = function(e) {
@@ -88,27 +88,27 @@ export default class Game {
                 if (game.current_plane > 0) {
                     game.current_plane -= 1;
                 }
-                game.scrollToCurrent();
+                game.#scrollToCurrent();
             }
             if (e.keyCode == 39) {
                 e.preventDefault();
                 if (game.current_plane < game.num_planes - 1) {
                     game.current_plane += 1;
                 }
-                game.scrollToCurrent();
+                game.#scrollToCurrent();
             }
         }
     }
 
     // Translate grid points to canvas points
-    translate(x, y) {
+    #translate(x, y) {
         x += this.highest_index;
         y += this.highest_index;
         return [x * BOARD_WIDTH / (this.grid_size - 1) + BUFFER, y * BOARD_HEIGHT / (this.grid_size - 1) + BUFFER]
     }
 
 
-    drawBoard() {
+    #drawBoard() {
         for (let i = 0; i < this.num_planes; i++) {
             let context = this.contexts[i]
             clear(context);
@@ -118,7 +118,7 @@ export default class Game {
             // Draw lines
             for (let p = -this.highest_index; p <= this.highest_index; p++) {
 
-                const [x, y] = this.translate(p, p);
+                const [x, y] = this.#translate(p, p);
 
                 context.beginPath();
                 context.moveTo(x, BUFFER)
@@ -135,7 +135,7 @@ export default class Game {
         }
     }
 
-    drawStones() {
+    #drawStones() {
         for (let i = 0; i < this.num_planes; i++) {
             let context = this.contexts[i]
             context.strokeStyle = "black";
@@ -156,7 +156,7 @@ export default class Game {
                     throw new Error("Impossible color")
                 }
 
-                const [x, y] = this.translate(point.x(), point.y());
+                const [x, y] = this.#translate(point.x(), point.y());
 
                 context.beginPath();
                 context.ellipse(x, y, CHECKER_RADIUS, CHECKER_RADIUS, 0, 0, Math.PI * 2);
@@ -177,8 +177,8 @@ export default class Game {
         }
     }
 
-    nextTurn() {
-        this.drawStones();
+    #nextTurn() {
+        this.#drawStones();
         if (this.state.gameOver()) {
             alert("Game over!");
             return;
@@ -199,7 +199,7 @@ export default class Game {
             player.nextMove(this.state, this.turn, (value) => {
                 setTimeout(() => {
                     this.state.place(value, this.turn);
-                    this.nextTurn();
+                    this.#nextTurn();
                 }, AI_SLEEP_TIME * player.useTimer());
             })
         } else {
@@ -207,7 +207,7 @@ export default class Game {
         }
     }
 
-    scrollToCurrent() {
+    #scrollToCurrent() {
         const scroll_options = {
             behavior: "smooth",
             block: "center",
