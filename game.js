@@ -137,15 +137,15 @@ export default class Game {
 
     #drawStones() {
         for (let i = 0; i < this.num_planes; i++) {
-            let context = this.contexts[i]
+            const context = this.contexts[i]
             context.strokeStyle = "black";
             context.lineWidth = 2;
-            for (let point of this.state.getAllPoints()) {
+            for (const point of this.state.getAllPoints()) {
                 if (this.mode_3d && point.z() != i - this.highest_index) {
                     continue;
                 }
 
-                let color = this.state.get(point);
+                const color = this.state.get(point);
                 if (!color) {
                     continue;
                 } else if (color == WHITE) {

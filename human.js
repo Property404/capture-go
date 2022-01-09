@@ -56,12 +56,6 @@ export default class Human {
                         x = Math.round(x);
                         y = Math.round(y);
 
-                        // Rotate for portrait
-                        if (window.innerHeight > window.innerWidth) {
-                            const t = x;
-                            x = y
-                            y = -t;
-                        }
                         const offset = (this.#game.num_planes - 1) / 2
                         const point = new Point(x, y, i - offset);
 
