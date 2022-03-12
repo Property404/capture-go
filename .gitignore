@@ -1,8 +1,11 @@
 *
+!**/**/
 !*.html
 !*.md
 !*.css
 !*.js
 !*.json
-!.gitignore
+!*.yml
 !LICENSE
+
+node_modules
