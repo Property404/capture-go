@@ -29,7 +29,7 @@ function clear(context) {
 }
 
 export default class Game {
-    constructor(black_player, white_player, grid_size = 5, mode_3d = true) {
+    constructor(black_player, white_player, grid_size, mode_3d) {
         if (!(grid_size % 2)) {
             new Error("Grid size must be odd!!");
         }
