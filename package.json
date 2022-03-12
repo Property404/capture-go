@@ -1,7 +1,7 @@
 {
   "name": "capture_go",
   "version": "0.1.0",
-  "description": "3D version of the capture-only version of the classic board game",
+  "description": "Capture-only version of the classic board game",
   "main": "app.js",
   "type": "module",
   "scripts": {
