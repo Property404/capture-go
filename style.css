@@ -1,72 +1,80 @@
 :root {
     --background: #444;
 }
+
 * {
-    box-sizing:border-box;
-}
-html{
-    height:100%;
-    margin:0;
-    padding:0;
-}
-body{
-    margin:0;
-    padding:0;
-    color:white;
-    font-family:sans-serif;
-    background-color:var(--background);
-    display:flex;
-    flex-direction:row;
-    justify-content:center;
-    align-items:center;
-    height:100%;
-    flex-wrap:nowrap;
+    box-sizing: border-box;
 }
 
-h1, h2, h3{
-    width:100%;
-    text-align:center;
-    margin:none;
-    padding:none;
-    display:block;
+html {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    color: white;
+    font-family: sans-serif;
+    background-color: var(--background);
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+}
+
+h1,
+h2,
+h3 {
+    width: 100%;
+    text-align: center;
+    margin: none;
+    padding: none;
+    display: block;
 }
 
 #main-menu {
-    height:100%;
-    margin:0;
-    padding:1rem;
+    height: 100%;
+    margin: 0;
+    padding: 1rem;
     display: flex;
     flex-direction: column;
-    justify-content:space-between;
-    align-items:left;
-    gap: .2rem;
+    justify-content: space-between;
+    align-items: left;
+    gap: 0.2rem;
     font-size: 2em;
-    min-width:10rem;
-    max-width:100%;
+    min-width: 10rem;
+    max-width: 100%;
 }
 
-.main-menu-item{
-    width:100%;
+.main-menu-item {
+    width: 100%;
     display: flex;
-    gap:.2rem;
-    padding:0;
-    margin:0;
-    justify-content:space-between;
-    align-items:center;
-}
-.main-menu-item h1{
-    margin:0;
+    gap: 0.2rem;
+    padding: 0;
+    margin: 0;
+    justify-content: space-between;
+    align-items: center;
 }
 
-select,input,button {
+.main-menu-item h1 {
+    margin: 0;
+}
+
+select,
+input,
+button {
     display: inline-block;
-    background-color:var(--background);
-    color:white;
-    border: .2rem solid;
+    background-color: var(--background);
+    color: white;
+    border: 0.2rem solid;
     border-color: white;
-    font-size:inherit;
+    font-size: inherit;
     padding: 1rem;
 }
+
 select {
     /* Bit of a hack to get Chrome and Firefox to display normally,
      * and for Webkit to have a slightly less shit styling
@@ -78,97 +86,104 @@ select {
     -webkit-appearance: none;
     appearance: auto !important;
 }
+
 select:hover {
-    cursor:pointer;
+    cursor: pointer;
 }
+
 button:hover {
-    cursor:pointer;
-    color:var(--background);
-    background-color:white;
+    cursor: pointer;
+    color: var(--background);
+    background-color: white;
 }
+
 button:active {
     border-color: transparent;
-    padding:1.2rem;
+    padding: 1.2rem;
 }
-input[type=number]::-webkit-inner-spin-button {
-  -webkit-appearance: none;
+
+input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
 }
+
 input[type="number"] {
     appearance: textfield;
     max-width: 8rem;
 }
 
-.number-input-container{
+.number-input-container {
     display: flex;
 }
 
-.number-input-arrowbox{
+.number-input-arrowbox {
     display: inline-flex;
-    margin:0;
-    padding:0;
-    margin-right:.2rem;;
-    margin-left:.2rem;;
-    flex-direction:column;
-    border:none;
+    margin: 0;
+    padding: 0;
+    margin-right: 0.2rem;
+    margin-left: 0.2rem;
+    flex-direction: column;
+    border: none;
     font-size: 50%;
-    align-items:center;
-    justify-content:center;
+    align-items: center;
+    justify-content: center;
 }
 
-.number-input-arrowbox button{
-    margin:0;
-    padding:0;
-    font-size:inherit;
-    width:100%;
+.number-input-arrowbox button {
+    margin: 0;
+    padding: 0;
+    font-size: inherit;
+    width: 100%;
 }
 
 #boards::-webkit-scrollbar {
     display: none;
 }
 
-#boards{
+#boards {
     display: flex;
-    align-items:space-evenly;
-    margin:0;
-    padding:0;
-    width:100%;
-    height:100%;
+    align-items: space-evenly;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
     overflow-x: scroll;
-    flex-wrap:nowrap;
-    scrollbar-width:none;
+    flex-wrap: nowrap;
+    scrollbar-width: none;
     scroll-behavior: smooth;
 }
 
-canvas{
-    margin:auto;
-    margin-left:50%;
-    margin-right:50%;
-    border:2px solid black;
-    height:100%;
+canvas {
+    margin: auto;
+    margin-left: 50%;
+    margin-right: 50%;
+    border: 2px solid black;
+    height: 100%;
 }
 
 #title {
     display: none;
 }
-@media(min-height:40rem)
-{
+
+@media (min-height: 40rem) {
     #title {
         display: block;
     }
 }
-@media (orientation: portrait) {
 
-    body,.main-menu,.main-menu-item {
-        width:100%;
-        padding-left:.1rem;
-        padding-right:.1rem;
+@media (orientation: portrait) {
+    body,
+    .main-menu,
+    .main-menu-item {
+        width: 100%;
+        padding-left: 0.1rem;
+        padding-right: 0.1rem;
     }
 
     canvas {
-        width:100%;
-        height:auto;
-        margin:auto;
-        margin-left:none;
-        margin-right:none;
+        width: 100%;
+        height: auto;
+        margin: auto;
+        margin-left: none;
+        margin-right: none;
     }
 }
