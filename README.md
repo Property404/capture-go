@@ -9,6 +9,8 @@ orthogonally(i.e. non-diagonal) adjacent sides.
 
 Click the intersections on the board to place your stone.
 
+Play online [here](https://dagans.dev/projects/capture-go)
+
 ## 3D Version
 
 The 3D version of capture go is exactly like the 2D version, but with an extra dimension.
