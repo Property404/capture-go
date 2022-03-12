@@ -20,7 +20,7 @@ in the Z axis.
 ## Running Locally
 
 * `npm install`
-* `python3 -m http.server # Or equivalent`
+* `python3 -m http.server 8000 # Or equivalent`
 * Open <http://localhost:8000> in your browser
 
 ## License
