@@ -4,6 +4,7 @@
 !*.md
 !*.css
 !*.js
+!*.cjs
 !*.json
 !*.yml
 !LICENSE

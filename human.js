@@ -2,9 +2,6 @@ import {
     Point
 } from "./board_state.js";
 import {
-    CANVAS_WIDTH,
-    CANVAS_HEIGHT,
-    CHECKER_RADIUS,
     BUFFER,
     BOARD_WIDTH,
     BOARD_HEIGHT,

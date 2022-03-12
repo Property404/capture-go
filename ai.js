@@ -1,8 +1,4 @@
 import {
-    BoardState,
-    WHITE,
-    BLACK,
-    Point,
     opposingColor
 } from "./board_state.js"
 
@@ -12,24 +8,8 @@ class Ai {
     }
 
     nextMove(state, color, callback) {
-        callback(this.getNextMove(state, color));
-    }
-}
-
-function randomLegalPoint(state, color) {
-    const grid_size = state.grid_size;
-
-    function randomPoint() {
-        function random() {
-            return Math.floor(Math.random() * grid_size) - (grid_size - 1) / 2;
-        }
-        return new Point(random(), random(), random());
-    }
-    while (true) {
-        const point = randomPoint(state)
-        if (state.moveIsLegal(point, color)) {
-            return point;
-        }
+        const next_move = this.getNextMove(state, color);
+        callback(next_move);
     }
 }
 
@@ -72,14 +52,8 @@ function getScore(state, color) {
     return score;
 }
 
-export class NaivePlayer extends Ai {
-    getNextMove(state, color) {
-        return randomLegalPoint(state, color);
-    }
-}
-
 export class GreedyPlayer extends Ai {
-    getNextMove(state, color, callback) {
+    getNextMove(state, color) {
         const points = state.getAllPoints();
         const current_score = getScore(state, color);
         let best_moves = [];

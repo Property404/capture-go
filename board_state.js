@@ -1,6 +1,5 @@
 const MAX_GRID_SIZE = 1023;
 const DEFAULT_GRID_SIZE = 9;
-const DIMENSIONS = 3;
 
 export const WHITE = 1;
 export const BLACK = 2;

@@ -3,7 +3,6 @@ import {
     BoardState,
     WHITE,
     BLACK,
-    Point,
     opposingColor
 } from "./board_state.js";
 
@@ -191,7 +190,7 @@ export default class Game {
                 dialog.removeAttribute("hidden");
                 document.getElementById("game-over-message").textContent = label;
                 dialog.showModal();
-                dialog.onclose = (e) => {
+                dialog.onclose = () => {
                     if (dialog.returnValue == "play_again") {
                         console.log("Playing again");
                         this.init();
@@ -221,7 +220,10 @@ export default class Game {
         if (player) {
             player.nextMove(this.state, this.turn, (value) => {
                 setTimeout(() => {
-                    this.state.place(value, this.turn);
+                    if (value) {
+                        this.state.place(value, this.turn);
+                    }
+                    // Pass
                     this.#nextTurn();
                 }, AI_SLEEP_TIME * player.useTimer());
             })

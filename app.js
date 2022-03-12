@@ -1,5 +1,4 @@
 import {
-    NaivePlayer,
     GreedyPlayer
 } from "./ai.js";
 
@@ -29,10 +28,10 @@ function initialize_menu() {
     // Initialize all number input buttons
     for (const arrowbox of document.querySelectorAll(".number-input-arrowbox")) {
         const input = arrowbox.parentElement.parentElement.querySelector("input");
-        arrowbox.querySelector(".number-input-up").onclick = (e) => {
+        arrowbox.querySelector(".number-input-up").onclick = () => {
             input.stepUp();
         }
-        arrowbox.querySelector(".number-input-down").onclick = (e) => {
+        arrowbox.querySelector(".number-input-down").onclick = () => {
             input.stepDown();
         }
     }
@@ -61,7 +60,7 @@ function initialize_menu() {
         // Save current selections
         saveValuesFromLocalStorage(all_config_ids);
 
-        const game = new Game(black_player, white_player, grid_size, mode_3d);
+        new Game(black_player, white_player, grid_size, mode_3d);
     }
 }
 
