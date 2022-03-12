@@ -180,7 +180,30 @@ export default class Game {
     #nextTurn() {
         this.#drawStones();
         if (this.state.gameOver()) {
-            alert("Game over!");
+            let label = "Game over! ";
+            if (this.turn == BLACK) {
+                label += "Black wins!";
+            } else {
+                label += "White wins!";
+            }
+            const dialog = document.getElementById("game-over-dialog");
+            if (dialog.showModal) {
+                dialog.removeAttribute("hidden");
+                document.getElementById("game-over-message").textContent = label;
+                dialog.showModal();
+                dialog.onclose = (e) => {
+                    if (dialog.returnValue == "play_again") {
+                        console.log("Playing again");
+                        this.init();
+                    } else {
+                        console.log("Back to main menu!");
+                        document.querySelector("#main-menu").style = null;
+                        document.querySelector("#boards").style = "display: none;";
+                    }
+                }
+            } else {
+                alert(label);
+            }
             return;
         }
 
