@@ -13,11 +13,11 @@ Play online [here](https://dagans.dev/projects/capture-go)
 
 ## 3D Version
 
-The 3D version of capture go is exactly like the 2D version, but with an extra dimension.
-A stone placed at [Tengen](https://en.wikipedia.org/wiki/Tengen_(Go)) as the
-first move will have 6 liberties instead of 4, with the addition of up and
-down in the Z-axis. Use the left and right arrow keys to switch between planes
-in the Z axis.
+The 3D version of capture go is exactly like the 2D version, but with an extra
+dimension. A stone placed at tengen(center of the board) as the first move
+will have 6 liberties instead of 4, with the addition of up and down in the
+Z-axis. Use the left and right arrow keys to switch between planes in the Z
+axis.
 
 ## Running Locally
 
