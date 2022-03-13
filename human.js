@@ -41,24 +41,38 @@ export default class Human {
         return [x, y]
     }
 
+    #getPointOnCanvas(canvas, x, y, z) {
+        [x, y] = this.#revTranslate(
+            ...absoluteToCanvas(canvas, x, y)
+        )
+
+        if (inDelta(x) && inDelta(y)) {
+            x = Math.round(x);
+            y = Math.round(y);
+
+            const offset = (this.#game.num_planes - 1) / 2
+            const point = new Point(x, y, z - offset);
+            return point;
+        }
+        return null;
+    }
+
     #setCanvasesClickable(yes, state, color, callback) {
         const canvases = this.#game.canvases;
         for (let i = 0; i < this.#game.num_planes; i++) {
             if (yes) {
                 canvases[i].onclick = (e) => {
-                    const [_x, _y] = absoluteToCanvas(e.target, e.clientX, e.clientY)
-                    let [x, y] = this.#revTranslate(_x, _y)
-
-                    if (inDelta(x) && inDelta(y)) {
-                        x = Math.round(x);
-                        y = Math.round(y);
-
-                        const offset = (this.#game.num_planes - 1) / 2
-                        const point = new Point(x, y, i - offset);
-
-                        if (state.moveIsLegal(point, color)) {
-                            callback(point);
-                        }
+                    const point = this.#getPointOnCanvas(e.target, e.clientX, e.clientY, i);
+                    if (point && state.moveIsLegal(point, color)) {
+                        callback(point);
+                    }
+                }
+                canvases[i].onmousemove = (e) => {
+                    const point = this.#getPointOnCanvas(e.target, e.clientX, e.clientY, i);
+                    if (point && state.moveIsLegal(point, color)) {
+                        document.body.style.cursor = "pointer";
+                    } else {
+                        document.body.style.cursor = "default";
                     }
                 }
             } else {
