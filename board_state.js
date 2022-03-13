@@ -101,6 +101,7 @@ export class BoardState {
         this.#mode_3d = mode_3d;
         this.#max = (grid_size - 1) / 2;
         this.#min = -this.#max
+        this.grid_size = grid_size;
 
         this.reset();
     }
@@ -289,5 +290,9 @@ export class BoardState {
         }
         this.#set(point, color);
         return true;
+    }
+
+    in3dMode() {
+        return this.#mode_3d;
     }
 }

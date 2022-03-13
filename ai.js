@@ -58,7 +58,7 @@ export class GreedyPlayer extends Ai {
         const current_score = getScore(state, color);
         let best_moves = [];
         let best_score = -Infinity;
-        for (let point of points) {
+        for (const point of points) {
             if (state.place(point, color)) {
                 let score = getScore(state, color);
                 state.remove(point);
@@ -70,7 +70,7 @@ export class GreedyPlayer extends Ai {
                 }
 
                 // Quit early for larger grids
-                if (state.mode_3d) {
+                if (state.in3dMode()) {
                     if (state.grid_size >= 9 && score > current_score) {
                         return point;
                     }
