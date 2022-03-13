@@ -192,10 +192,8 @@ export default class Game {
                 dialog.showModal();
                 dialog.onclose = () => {
                     if (dialog.returnValue == "play_again") {
-                        console.log("Playing again");
                         this.init();
                     } else {
-                        console.log("Back to main menu!");
                         document.querySelector("#main-menu").style = null;
                         document.querySelector("#boards").style = "display: none;";
                     }
