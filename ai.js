@@ -60,7 +60,7 @@ export class GreedyPlayer extends Ai {
         let best_score = -Infinity;
         for (const point of points) {
             if (state.place(point, color)) {
-                let score = getScore(state, color);
+                const score = getScore(state, color);
                 state.remove(point);
                 if (score > best_score) {
                     best_score = score;
