@@ -1,4 +1,4 @@
-const MAX_GRID_SIZE = 1023;
+const MAX_GRID_SIZE = 32;
 const DEFAULT_GRID_SIZE = 9;
 
 export const WHITE = 1;
@@ -30,40 +30,35 @@ export class Point {
     }
 
     x() {
-        return this.coordinates[0] || 0;
+        return this.coordinates[0];
     }
 
     y() {
-        return this.coordinates[1] || 0;
+        return this.coordinates[1];
     }
 
     z() {
-        return this.coordinates[2] || 0;
-    }
-
-    // Return all orthogonally adjacent points 
-    #getOrthogonalsByDimension(dimension) {
-        const orthogonals = [];
-        const coordinates = [];
-        for (let i = 0; i < dimension; i++) {
-            coordinates[i] = this.coordinates[i] || 0;
-        }
-        for (let i = 0; i < dimension; i++) {
-            coordinates[i] += 1;
-            orthogonals.push(new Point(...coordinates));
-            coordinates[i] -= 2;
-            orthogonals.push(new Point(...coordinates));
-            coordinates[i] += 1;
-        }
-        return orthogonals;
+        return this.coordinates[2] ?? 0;
     }
 
     get3dOrthogonals() {
-        return this.#getOrthogonalsByDimension(3);
+        return [
+            new Point(this.coordinates[0] - 1, this.coordinates[1], this.coordinates[2]),
+            new Point(this.coordinates[0] + 1, this.coordinates[1], this.coordinates[2]),
+            new Point(this.coordinates[0], this.coordinates[1] - 1, this.coordinates[2]),
+            new Point(this.coordinates[0], this.coordinates[1] + 1, this.coordinates[2]),
+            new Point(this.coordinates[0], this.coordinates[1], this.coordinates[2] - 1),
+            new Point(this.coordinates[0], this.coordinates[1], this.coordinates[2] + 1)
+        ]
     }
 
     get2dOrthogonals() {
-        return this.#getOrthogonalsByDimension(2);
+        return [
+            new Point(this.coordinates[0] - 1, this.coordinates[1], 0),
+            new Point(this.coordinates[0] + 1, this.coordinates[1], 0),
+            new Point(this.coordinates[0], this.coordinates[1] - 1, 0),
+            new Point(this.coordinates[0], this.coordinates[1] + 1, 0),
+        ]
     }
 
     // Check if all coordinates are inbetween min and max
@@ -78,10 +73,9 @@ export class Point {
 
     // Hash coordinates to number
     getValue() {
-        const exp = MAX_GRID_SIZE + 1;
         let val = 0;
-        for (let i in this.coordinates) {
-            val += this.coordinates[i] * Math.pow(exp, i);
+        for (const i in this.coordinates) {
+            val += this.coordinates[i] * Math.pow(MAX_GRID_SIZE, i);
         }
         return val;
     }
@@ -123,7 +117,7 @@ export class BoardState {
         this.#guard(point);
         this.#state[point.getValue()] = color;
 
-        for (let adjacent of this.#getOrthogonals(point)) {
+        for (const adjacent of this.#getOrthogonals(point)) {
             if (this.get(adjacent)) {
                 this.#resetLibertyCache();
                 return;
